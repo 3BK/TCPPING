@@ -1,6 +1,3 @@
-#L4PING
-TCP Ping
-
 SecSh
 HTTP / HTTPS
 Weblogic / WebSphere
