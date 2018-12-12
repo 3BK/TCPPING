@@ -26,7 +26,7 @@ bk_port=""
 try:
   bk_step=0
   reg="TCP connect statistics for [0-9]*.[0-9]*.[0-9]*.[0-9]*:[0-9]*:"
-  p = subprocess.Popen(["some_stub"], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+  p = subprocess.Popen(["some_stub.bat"], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
   for line in iter(p.stdout.readline, b''):
     if bk_step==2:
       ml = re.search(reg, line)
