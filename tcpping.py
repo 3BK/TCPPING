@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 """
 Threaded Python TCP Ping Test (defaults to port 80, 10000 packets)
 
