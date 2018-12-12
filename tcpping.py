@@ -8,6 +8,8 @@ Usage: ./tcpping.py host [port] [maxCount] [ConnectionTimeout] [ConnectionInterg
 Derived from
   Jonathan Yantis, Blade.            https://github.com/yantisj/tcpping/blob/master/tcpping.py
   Andrey Belykh, Dundas Software.    https://stackoverflow.com/questions/48009669/using-for-python-tcp-ping-time-measure-difference-from-other-tools
+TODO:
+   Jim Willie, Akamai Technologies.  https://github.com/jwyllie83/tcpping
 """
 
 import sys
