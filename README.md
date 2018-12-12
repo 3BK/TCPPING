@@ -1,5 +1,5 @@
 #L4PING
-Layer 4 Ping
+TCP Ping
 
 SecSh
 HTTP / HTTPS
