@@ -4,6 +4,10 @@ Threaded Python TCP Ping Test (defaults to port 80, 10000 packets)
 
 Usage: ./tcpping.py host [port] [maxCount] [ConnectionTimeout] [ConnectionIntergreenRest]
 - Ctrl-C Exits with Results
+
+Derived from
+  Jonathan Yantis, Blade.             https://github.com/yantisj/tcpping/blob/master/tcpping.py
+  Andrey Belykh, 	Dundas Software.    https://stackoverflow.com/questions/48009669/using-for-python-tcp-ping-time-measure-difference-from-other-tools
 """
 
 import sys
@@ -28,14 +32,14 @@ intergreen = 1
 
 ## Inputs
 
-# Required Host
+# Required
 try:
     host = sys.argv[1]
 except IndexError:
     print("Usage: tcpping.py host [port] [maxCount]")
     sys.exit(1)
 
-# Optional Port
+# Optional
 try:
     port = int(sys.argv[2])
 except ValueError:
@@ -44,7 +48,6 @@ except ValueError:
 except IndexError:
     pass
 
-# Optional maxCount
 try:
     maxCount = int(sys.argv[3])
 except ValueError:
@@ -53,7 +56,6 @@ except ValueError:
 except IndexError:
     pass
 
-# Optional connTo 
 try:
     connTo  = int(sys.argv[4])
 except ValueError:
@@ -62,7 +64,6 @@ except ValueError:
 except IndexError:
     pass
 
-# Optional intergreen
 try:
     intergreen  = int(sys.argv[5])
 except ValueError:
@@ -74,7 +75,6 @@ except IndexError:
 # Pass/Fail counters
 passed = 0
 failed = 0
-
 
 def getResults():
     """ Summarize Results """
