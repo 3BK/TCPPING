@@ -6,8 +6,8 @@ Usage: ./tcpping.py host [port] [maxCount] [ConnectionTimeout] [ConnectionInterg
 - Ctrl-C Exits with Results
 
 Derived from
-  Jonathan Yantis, Blade.             https://github.com/yantisj/tcpping/blob/master/tcpping.py
-  Andrey Belykh, 	Dundas Software.    https://stackoverflow.com/questions/48009669/using-for-python-tcp-ping-time-measure-difference-from-other-tools
+  Jonathan Yantis, Blade.            https://github.com/yantisj/tcpping/blob/master/tcpping.py
+  Andrey Belykh, Dundas Software.    https://stackoverflow.com/questions/48009669/using-for-python-tcp-ping-time-measure-difference-from-other-tools
 """
 
 import sys
@@ -36,7 +36,7 @@ intergreen = 1
 try:
     host = sys.argv[1]
 except IndexError:
-    print("Usage: tcpping.py host [port] [maxCount]")
+    print("Usage: tcpping.py host [port] [maxCount] [ConnectionTimeout] [ConnectionIntergreenRest]")
     sys.exit(1)
 
 # Optional
