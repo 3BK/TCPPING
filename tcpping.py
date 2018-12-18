@@ -21,15 +21,8 @@ import threading
 
 host = ''
 port = 80
-#Optionally qualify underlying machine
-#a = time.clock()
-#time.sleep(2)
-#b = time.clock()
-#print(b-a)
-# Default to 10000 connections max
 maxCount = 3
 count = 0
-connTo = 1
 intergreen = 0.05
 proto = 6            #https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
                      #https://tools.ietf.org/html/rfc793
@@ -68,19 +61,9 @@ except IndexError:
 passed = 0
 failed = 0
 
-def getResults():
-    """ Summarize Results """
-
-    lRate = 0
-    if failed != 0:
-        lRate = failed / (count) * 100
-        lRate = "%.2f" % lRate
-
-    #print("\nTCP Ping Results: Connections (Total/Pass/Fail): [{:}/{:}/{:}] (Failed: {:}%)".format((count), passed, failed, str(lRate)))
 
 def signal_handler(signal, frame):
     """ Catch Ctrl-C and Exit """
-    #getResults()
     sys.exit(0)
 
 # Register SIGINT Handler
@@ -91,7 +74,6 @@ while count < maxCount:
 
     # Increment Counter
     count += 1
-
     success = False
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -142,7 +124,6 @@ while count < maxCount:
 
     if success:
       s_runtime = "%.3f" % (1000 * (s_stop - s_start))
-      #print("Connected to %s[%s]: tcp_seq=%s time=%s ms" % (host, port, (count-1), s_runtime))
       print("%s,%s,%s,%s,%s" % (host, port, proto, (count-1), s_runtime))
       passed += 1
 
@@ -150,5 +131,3 @@ while count < maxCount:
     if count < maxCount:
         time.sleep(intergreen)
 
-# Output Results if maxCount reached
-#getResults()
