@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 """
-Threaded Python TCP Ping Test (defaults to port 80, 10000 packets)
-
-Usage: ./tcpping.py host [port] [maxCount] [ConnectionTimeout] [ConnectionIntergreenRest]
-- Ctrl-C Exits with Results
-
+Threaded Python TCP Ping Test (defaults to port 80, 3 packets)
+Usage: ./tcpping.py host [port] [maxCount]
+- Ctrl-C Exits 
 Derived from
   Jonathan Yantis, Blade.            https://github.com/yantisj/tcpping/blob/master/tcpping.py
   Andrey Belykh, Dundas Software.    https://stackoverflow.com/questions/48009669/using-for-python-tcp-ping-time-measure-difference-from-other-tools
@@ -13,6 +11,8 @@ TODO:
 """
 
 import sys
+import os
+import errno
 import socket
 import time
 import signal
@@ -27,10 +27,12 @@ port = 80
 #b = time.clock()
 #print(b-a)
 # Default to 10000 connections max
-maxCount = 10000 
+maxCount = 3
 count = 0
 connTo = 1
-intergreen = 1
+intergreen = 0.05
+proto = 6            #https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+                     #https://tools.ietf.org/html/rfc793
 
 ## Inputs
 
@@ -38,14 +40,16 @@ intergreen = 1
 try:
     host = sys.argv[1]
 except IndexError:
-    print("Usage: tcpping.py host [port] [maxCount] [ConnectionTimeout] [ConnectionIntergreenRest]")
+    sys.stderr.write("Usage: tcpping.py host [port] [maxCount]\n")
     sys.exit(1)
 
 # Optional
 try:
     port = int(sys.argv[2])
 except ValueError:
-    print("Error: Port Must be Integer:", sys.argv[3])
+    sys.stderr.write("Error: Port Must be Integer: ")
+    sys.stderr.write(sys.argv[2])
+    sys.stderr.write("\n")
     sys.exit(1)
 except IndexError:
     pass
@@ -53,23 +57,9 @@ except IndexError:
 try:
     maxCount = int(sys.argv[3])
 except ValueError:
-    print("Error: Max Count Value Must be Integer", sys.argv[3])
-    sys.exit(1)
-except IndexError:
-    pass
-
-try:
-    connTo  = int(sys.argv[4])
-except ValueError:
-    print("Error: Max Connection Timeout Value Must be Integer", sys.argv[4])
-    sys.exit(1)
-except IndexError:
-    pass
-
-try:
-    intergreen  = int(sys.argv[5])
-except ValueError:
-    print("Error: Connection intergreen rest must be Integer", sys.argv[5])
+    sys.stderr.write("Error: Max Count Value Must be Integer ")
+    sys.stderr.write(sys.argv[3])
+    sys.stderr.write("\n")
     sys.exit(1)
 except IndexError:
     pass
@@ -86,11 +76,11 @@ def getResults():
         lRate = failed / (count) * 100
         lRate = "%.2f" % lRate
 
-    print("\nTCP Ping Results: Connections (Total/Pass/Fail): [{:}/{:}/{:}] (Failed: {:}%)".format((count), passed, failed, str(lRate)))
+    #print("\nTCP Ping Results: Connections (Total/Pass/Fail): [{:}/{:}/{:}] (Failed: {:}%)".format((count), passed, failed, str(lRate)))
 
 def signal_handler(signal, frame):
     """ Catch Ctrl-C and Exit """
-    getResults()
+    #getResults()
     sys.exit(0)
 
 # Register SIGINT Handler
@@ -111,23 +101,49 @@ while count < maxCount:
 
     # Try to Connect
     try:
-        t = threading.Thread(target=s.connect((host, int(port))))
-        s_start = timer()
-        t.start()                                      #do thread
-        s_stop = timer()
-        s.shutdown(socket.SHUT_RD)
-        success = True
+      t = threading.Thread(target=s.connect((host, int(port))))
+      s_start = timer()
+      t.start()                                      #do thread
+      s_stop = timer()
+      s.shutdown(socket.SHUT_RD)
+      success = True
+      s.close()
 
-    except socket.timeout:
-        print("Connection timed out!")
-        failed += 1
+    except socket.timeout as e:
+      s.close()
+      sys.stderr.write("Connection timed out!\n")
+      print("%s,%s,%s,%s,%s" % (host, port, proto, (count-1), 9999))
+      failed += 1
+    except socket.gaierror as (eno,estr):
+      #https://docs.python.org/3/library/socket.html#socket.socket.connect
+      s.close()
+      sys.stderr.write(estr)
+      sys.stderr.write("\n")
+      print("%s,%s,%s,%s,%s" % (host, port, proto, (count-1), 9999))
+      failed += 1
+    except socket.error as e:
+      #https://docs.python.org/2/library/errno.html
+      s.close()
+      sys.stderr.write("Socket Error!\n")
+      print("%s,%s,%s,%s,%s" % (host, port, proto, (count-1), 9999))
+      failed += 1
+      if e.errno == errno.ECONNREFUSED or e.errno==errno.EHOSTUNREACH:
+        sys.stderr.write(os.strerror(e.errno))
+        sys.stderr.write("\n")
+      else:
+        raise
     except OSError as e:
-        print("OS Error:", e)
-        failed += 1   
+      s.close()
+      sys.stderr.write("OS Error:\n")
+      sys.stderr.write(os.strerror(e.errno))
+      sys.stderr.write("\n")
+      print("%s,%s,%s,%s,%s" % (host, port, proto, (count-1), 9999))
+      failed += 1
 
     if success:
-      s_runtime = "%.2f" % (1000 * (s_stop - s_start))
-      print("Connected to %s[%s]: tcp_seq=%s time=%s ms" % (host, port, (count-1), s_runtime))
+      s_runtime = "%.3f" % (1000 * (s_stop - s_start))
+      #print("Connected to %s[%s]: tcp_seq=%s time=%s ms" % (host, port, (count-1), s_runtime))
+      print("%s,%s,%s,%s,%s" % (host, port, proto, (count-1), s_runtime))
       passed += 1
 
     # intergreen rest
@@ -135,4 +151,4 @@ while count < maxCount:
         time.sleep(intergreen)
 
 # Output Results if maxCount reached
-getResults()
+#getResults()
